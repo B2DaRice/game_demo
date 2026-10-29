@@ -119,6 +119,7 @@ Package Manager if the menu is missing) to see `Debug.Log` output and errors fro
 | No `Main.unity` scene / scene missing from build | **Astro Idle → Setup → Run Project Setup**. |
 | Pressing Play shows only a blue/grey screen | You're in an empty scene. Open **Astro Idle → Open Main Scene**. |
 | Buttons don't respond to clicks | Make sure there's no second EventSystem in the scene; the game creates its own. |
+| "Enter Safe Mode?" on open, with errors inside `Library/PackageCache/<package>` (not our `Assets/` code) | A package version is too old for this Unity version (e.g. Input System 1.12.0 fails on 6000.4 with `'BuildTarget' does not contain a definition for 'ReservedCFE'`). Bump that package in `Packages/manifest.json` to a version whose `unity` requirement matches (see the package page or Package Manager), then reopen. Find the exact error in `%LOCALAPPDATA%\Unity\Editor\Editor.log` (search for `error CS`). |
 | Package Manager error resolving `com.unity.inputsystem` or `com.unity.ide.visualstudio` | Open **Window → Package Manager**, select the package, click **Update** to the version it recommends. |
 | Phone not listed under Run Device | Re-plug the cable, accept the USB-debugging prompt on the phone, set USB mode to *File transfer*, click **Refresh**. |
 | Build fails mentioning SDK/NDK/JDK | Re-run the Unity Hub module install making sure *OpenJDK* and *Android SDK & NDK Tools* are ticked. |
