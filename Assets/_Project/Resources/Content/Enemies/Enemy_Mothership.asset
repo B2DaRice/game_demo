@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7c3e5a9b1d4f4e8a0b2c3d4e5f607182, type: 3}
+  m_Name: Enemy_Mothership
+  m_EditorClassIdentifier: 
+  id: mothership
+  displayName: Mothership
+  shape: 6
+  color: {r: 0.7, g: 0.5, b: 1, a: 1}
+  radius: 1.1
+  spinSpeed: 0
+  faceDirection: 0
+  maxHealth: 600
+  contactDamage: 25
+  moveSpeed: 0.8
+  creditReward: 250
+  behaviour: 2
+  isBoss: 1
+  preferredRange: 4
+  fireInterval: 1
+  projectileDamage: 10
+  projectileSpeed: 4.5
+  projectilesPerShot: 5
+  shotSpreadDegrees: 60
+  splitIntoEnemyId: ''
+  splitCount: 0

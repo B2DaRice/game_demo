@@ -1,0 +1,62 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6b2d4f8a0c3e4d7f9a1b2c3d4e5f6071, type: 3}
+  m_Name: Weapon_PulseBlaster
+  m_EditorClassIdentifier:
+  id: pulse_blaster
+  displayName: Pulse Blaster
+  description: 'Reliable single-target energy bolts.'
+  sortOrder: 0
+  ownedAtStart: 1
+  purchaseCost: 0
+  damage: 10
+  fireRate: 2
+  projectileCount: 1
+  spreadAngle: 0
+  projectileSpeed: 14
+  range: 7
+  pierce: 0
+  splashRadius: 0
+  motion: 0
+  homingTurnRate: 0
+  projectileLifetime: 1.5
+  projectileShape: 8
+  projectileSize: 0.12
+  color: {r: 0.5, g: 1, b: 0.6, a: 1}
+  upgrades:
+  - id: damage
+    displayName: Bolt Damage
+    description: 'Damage +20% per level.'
+    stat: 100
+    modifier: 1
+    valuePerLevel: 0.2
+    baseCost: 10
+    costGrowth: 1.2
+    maxLevel: 0
+  - id: fire_rate
+    displayName: Capacitors
+    description: 'Fire rate +8% per level.'
+    stat: 101
+    modifier: 1
+    valuePerLevel: 0.08
+    baseCost: 25
+    costGrowth: 1.28
+    maxLevel: 30
+  - id: pierce
+    displayName: Phase Bolts
+    description: 'Bolts pass through +1 extra enemy.'
+    stat: 103
+    modifier: 0
+    valuePerLevel: 1
+    baseCost: 500
+    costGrowth: 4
+    maxLevel: 3

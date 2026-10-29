@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: af6b8d2e4a7c4b1d3e5f607182930415, type: 3}
+  m_Name: Milestone_09_Kills1000
+  m_EditorClassIdentifier: 
+  id: kills_1000
+  displayName: Ace Pilot
+  description: 'Destroy 1,000 enemies.'
+  sortOrder: 9
+  condition: 1
+  targetValue: 1000
+  rewardCredits: 5000
+  unlockWeaponId: ''

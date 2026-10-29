@@ -1,0 +1,43 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8d4f6b0c2e5a4f9b1c3d4e5f60718293, type: 3}
+  m_Name: WaveConfig
+  m_EditorClassIdentifier:
+  baseEnemyCount: 8
+  enemiesPerWave: 2
+  maxEnemiesPerWave: 80
+  maxConcurrentEnemies: 30
+  baseSpawnInterval: 1.1
+  spawnIntervalMultiplierPerWave: 0.96
+  minSpawnInterval: 0.3
+  intermissionSeconds: 2
+  healthGrowthPerWave: 1.15
+  damageGrowthPerWave: 1.07
+  rewardGrowthPerWave: 1.13
+  speedGrowthPerWave: 0.015
+  maxSpeedMultiplier: 1.6
+  bossEveryNWaves: 10
+  bossEnemyId: mothership
+  failWaveSetback: 1
+  spawnTable:
+  - enemyId: asteroid
+    minWave: 1
+    maxWave: 0
+    weight: 10
+  - enemyId: drone
+    minWave: 3
+    maxWave: 0
+    weight: 6
+  - enemyId: gunship
+    minWave: 6
+    maxWave: 0
+    weight: 3

@@ -1,0 +1,82 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a1c3e7f9b2d4c6e8f0a1b2c3d4e5f60, type: 3}
+  m_Name: Ship_Sentinel
+  m_EditorClassIdentifier:
+  id: ship
+  displayName: Sentinel
+  shape: 0
+  color: {r: 0.4, g: 0.9, b: 1, a: 1}
+  visualRadius: 0.45
+  collisionRadius: 0.35
+  maxHull: 100
+  hullRegen: 1
+  moveSpeed: 3
+  creditMultiplier: 1
+  damageMultiplier: 1
+  fireRateMultiplier: 1
+  respawnInvulnerabilitySeconds: 2
+  upgrades:
+  - id: hull
+    displayName: Reinforced Hull
+    description: 'Max hull +15% per level.'
+    stat: 0
+    modifier: 1
+    valuePerLevel: 0.15
+    baseCost: 20
+    costGrowth: 1.22
+    maxLevel: 0
+  - id: regen
+    displayName: Nano Repair
+    description: 'Hull regeneration +0.5/sec per level.'
+    stat: 1
+    modifier: 0
+    valuePerLevel: 0.5
+    baseCost: 30
+    costGrowth: 1.25
+    maxLevel: 0
+  - id: thrusters
+    displayName: Thrusters
+    description: 'Move speed +5% per level. Dodge better.'
+    stat: 2
+    modifier: 1
+    valuePerLevel: 0.05
+    baseCost: 40
+    costGrowth: 1.3
+    maxLevel: 20
+  - id: salvage
+    displayName: Salvage Drones
+    description: 'Credits from kills +10% per level.'
+    stat: 3
+    modifier: 1
+    valuePerLevel: 0.1
+    baseCost: 75
+    costGrowth: 1.35
+    maxLevel: 0
+  - id: overcharge
+    displayName: Overcharge
+    description: 'Damage of ALL weapons +5% per level.'
+    stat: 4
+    modifier: 1
+    valuePerLevel: 0.05
+    baseCost: 150
+    costGrowth: 1.45
+    maxLevel: 0
+  - id: fire_control
+    displayName: Fire Control
+    description: 'Fire rate of ALL weapons +4% per level.'
+    stat: 5
+    modifier: 1
+    valuePerLevel: 0.04
+    baseCost: 100
+    costGrowth: 1.4
+    maxLevel: 25
