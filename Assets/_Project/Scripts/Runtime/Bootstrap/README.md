@@ -12,8 +12,8 @@ entire game in code and runs the app-level loop.
 1. **App settings:** `targetFrameRate = 60`, screen never sleeps, `timeScale = 1`.
 2. **Content:** `ContentDatabase.LoadFromResources()` then `Validate()` (errors logged). If the ship, wave config
    or economy config is missing, startup stops with an error.
-3. **Services** (`CreateServices`): load the save → `CurrencyWallet` → `WeaponInventory.EnsureStartingWeapons()` →
-   starting credits for a new game → `UpgradeService` → `MilestoneService` → `RewardService` → `GameContext`.
+3. **Services** (`CreateServices`): load the save → `CurrencyWallet` → `WeaponInventory.EnsureStartingWeapons(random roll)` (random starter on a new game) →
+   starting credits for a new game → `UpgradeService` → `MilestoneService` → `RewardService` → `AutoBuyService` → `GameContext`.
 4. **World** (`BuildWorld`): camera (`ArenaCamera.Configure`) → `PlayArea` → spawners and effects →
    `GameplayContext` → starfield → `PlayerShip` (registered in `CombatRegistry` *before* `Initialize`) →
    `WaveDirector`.
@@ -25,6 +25,7 @@ wave director), and waves begin only after everything exists.
 
 ## App loop (`Update`)
 - `RewardService.Tick` (credits/sec smoothing, game time).
+- `AutoBuyService.Tick` (auto mode shopping pass every 0.5s real time, when enabled).
 - `MilestoneService.Evaluate` every 0.25s (real time).
 - Autosave every `EconomyConfig.autosaveIntervalSeconds` (real time).
 - If the screen size or safe area changed: reconfigure camera, play area, starfield and UI layout.

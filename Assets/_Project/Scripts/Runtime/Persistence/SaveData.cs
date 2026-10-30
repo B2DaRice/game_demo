@@ -34,6 +34,15 @@ namespace AstroIdle.Persistence
         public List<string> ownedWeapons = new List<string>();
         public List<string> completedMilestones = new List<string>();
 
+        /// <summary>Id of the random weapon this save started with (default Weapons sub-tab).</summary>
+        public string startingWeaponId = "";
+
+        // ---- Auto mode ----
+        public bool autoBuyEnabled;
+
+        /// <summary>(int)AutoBuyStrategy. Enum values are append-only, so stored ints stay valid.</summary>
+        public int autoBuyStrategy;
+
         // ---- Meta ----
         /// <summary>UTC DateTime ticks of the last save; drives offline earnings.</summary>
         public long lastSaveUtcTicks;

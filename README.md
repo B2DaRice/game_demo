@@ -3,8 +3,10 @@
 An idle / incremental shooter for Android, built in **Unity 6 (6000.4.6f1)**.
 
 A small triangular ship (a nod to *Asteroids*) flies itself around a play field, auto-firing every weapon it owns
-at waves of asteroids, drones and gunships. Kills earn **credits**. Credits buy **upgrades** (ship and per-weapon).
-Reaching **milestones** unlocks new weapons to buy. The loop is modeled on idle games like *Idle Drill*: watch numbers
+at waves of asteroids, drones and gunships. Kills earn **credits**. Each run starts with one random weapon. Credits
+either **unlock more weapons** (each extra weapon costs more than the last) or buy **upgrades** (ship and per-weapon),
+so you choose between going broad or deep. An optional **auto mode** (Attack / Balanced / Defense) can do the spending
+for you. **Milestones** pay bonus credits. The loop is modeled on idle games like *Idle Drill*: watch numbers
 go up, spend, push further, hit a wall, upgrade, push again. Progress continues (at reduced efficiency) while the app
 is closed.
 

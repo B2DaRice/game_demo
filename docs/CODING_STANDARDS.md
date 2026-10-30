@@ -121,7 +121,7 @@ Spelling: use **Behaviour** (Unity's British spelling) for consistency with `Mon
 - **Plain C# by default.** Use `MonoBehaviour` only when you need the Unity lifecycle (`Update`), a `Transform`
   or components. Rules and math go in plain classes or `static` pure functions (which are testable).
 - **Encapsulate state:** expose read-only properties. Mutation goes through intention-revealing methods
-  (`TrySpend`, `TryPurchase`, `Unlock`).
+  (`TrySpend`, `TryPurchase`, `TryUnlock`).
 - **`Try…` methods** return `bool` for expected failures (can't afford). Use exceptions only for programmer errors.
 - **Strategy over switch-everywhere:** variable behaviour (enemy AI, tabs, rows) is an interface with
   implementations, selected in one factory or registry.

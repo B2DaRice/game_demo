@@ -4,7 +4,7 @@ Layer 4: what is saved and how.
 
 | File | Purpose |
 |------|---------|
-| `SaveData.cs` | The complete persistent state as a plain `[Serializable]` class: credits, totals, current/highest wave, auto-advance, upgrade levels, unlocked/owned weapons, completed milestones, last save time, smoothed credits/sec. Helper methods for upgrade levels. |
+| `SaveData.cs` | The complete persistent state as a plain `[Serializable]` class: credits, totals, current/highest wave, auto-advance, upgrade levels, unlocked/owned weapons, the random starting weapon id, auto mode on/off and strategy, completed milestones, last save time, smoothed credits/sec. Helper methods for upgrade levels. |
 | `UpgradeLevelEntry.cs` | `{ key, level }` pair (JsonUtility can't serialize dictionaries). Key format: `"{ownerId}.{trackId}"`, e.g. `pulse_blaster.damage`. |
 | `SaveService.cs` | Loads/saves JSON at `Application.persistentDataPath/astroidle_save.json`. Atomic writes (temp file then swap), corrupt-file backup, `Migrate()` for version upgrades, `DeleteSaveFile()`. |
 

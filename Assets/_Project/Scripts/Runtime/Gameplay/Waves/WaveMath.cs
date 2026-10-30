@@ -27,7 +27,10 @@ namespace AstroIdle.Gameplay.Waves
             return config.BossEveryNWaves > 0 && wave % config.BossEveryNWaves == 0;
         }
 
-        /// <summary>Compounding health/damage/reward growth and capped linear speed growth for a wave.</summary>
+        /// <summary>
+        /// Compounding health/damage/reward growth, and linear speed growth that starts at
+        /// StartingSpeedMultiplier on wave 1 and is capped at MaxSpeedMultiplier.
+        /// </summary>
         public static EnemyScaling Scaling(WaveConfig config, int wave)
         {
             int steps = Mathf.Max(0, wave - 1);
@@ -35,7 +38,7 @@ namespace AstroIdle.Gameplay.Waves
                 Mathf.Pow(config.HealthGrowthPerWave, steps),
                 Mathf.Pow(config.DamageGrowthPerWave, steps),
                 System.Math.Pow(config.RewardGrowthPerWave, steps),
-                Mathf.Min(1f + config.SpeedGrowthPerWave * steps, config.MaxSpeedMultiplier));
+                Mathf.Min(config.StartingSpeedMultiplier + config.SpeedGrowthPerWave * steps, config.MaxSpeedMultiplier));
         }
     }
 }

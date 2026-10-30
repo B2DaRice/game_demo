@@ -23,6 +23,7 @@ namespace AstroIdle.Core
         public WeaponInventory Weapons { get; set; }
         public MilestoneService Milestones { get; set; }
         public RewardService Rewards { get; set; }
+        public AutoBuyService AutoBuy { get; set; }
         public GameplayContext Gameplay { get; set; }
         public PlayerShip Player { get; set; }
         public WaveDirector Waves { get; set; }

@@ -74,6 +74,7 @@ namespace AstroIdle.Bootstrap
             if (context == null) return;
 
             context.Rewards.Tick(Time.deltaTime);
+            context.AutoBuy.Tick(Time.unscaledDeltaTime);
 
             milestoneTimer -= Time.unscaledDeltaTime;
             if (milestoneTimer <= 0f)
@@ -116,7 +117,7 @@ namespace AstroIdle.Bootstrap
 
             var wallet = new CurrencyWallet(save);
             var weapons = new WeaponInventory(content, save, wallet);
-            weapons.EnsureStartingWeapons();
+            weapons.EnsureStartingWeapons(UnityEngine.Random.value);
             if (isNewGame) save.credits = content.Economy.StartingCredits;
 
             var upgrades = new UpgradeService(content, save, wallet);
@@ -131,6 +132,7 @@ namespace AstroIdle.Bootstrap
                 Upgrades = upgrades,
                 Milestones = new MilestoneService(content, save, wallet, weapons),
                 Rewards = new RewardService(save, wallet, upgrades, content.Economy),
+                AutoBuy = new AutoBuyService(content, save, wallet, upgrades, weapons),
                 SaveNow = SaveGame,
                 ResetProgress = ResetProgress,
             };

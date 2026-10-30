@@ -53,7 +53,7 @@ namespace AstroIdle.Progression
         {
             save.completedMilestones.Add(milestone.Id);
             if (milestone.RewardCredits > 0d) wallet.Add(milestone.RewardCredits);
-            if (!string.IsNullOrEmpty(milestone.UnlockWeaponId)) weapons.Unlock(milestone.UnlockWeaponId);
+            if (!string.IsNullOrEmpty(milestone.UnlockWeaponId)) weapons.MakeAvailable(milestone.UnlockWeaponId);
             GameEvents.RaiseMilestoneCompleted(milestone);
         }
     }

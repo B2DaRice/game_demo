@@ -29,6 +29,9 @@ namespace AstroIdle.Tests
                 currentWave = 7,
                 highestWave = 9,
                 autoAdvance = false,
+                autoBuyEnabled = true,
+                autoBuyStrategy = 2,
+                startingWeaponId = "scatter_cannon",
             };
             save.SetUpgradeLevel("pulse_blaster.damage", 5);
             save.ownedWeapons.Add("pulse_blaster");
@@ -41,6 +44,9 @@ namespace AstroIdle.Tests
             Assert.AreEqual(7, loaded.currentWave);
             Assert.AreEqual(9, loaded.highestWave);
             Assert.IsFalse(loaded.autoAdvance);
+            Assert.IsTrue(loaded.autoBuyEnabled);
+            Assert.AreEqual(2, loaded.autoBuyStrategy);
+            Assert.AreEqual("scatter_cannon", loaded.startingWeaponId);
             Assert.AreEqual(5, loaded.GetUpgradeLevel("pulse_blaster.damage"));
             CollectionAssert.Contains(loaded.ownedWeapons, "pulse_blaster");
             CollectionAssert.Contains(loaded.completedMilestones, "first_contact");

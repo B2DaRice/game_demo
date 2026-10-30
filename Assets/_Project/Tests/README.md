@@ -7,9 +7,10 @@ Edit-mode unit tests (assembly `AstroIdle.Tests.EditMode`, editor-only, NUnit vi
 | File | Covers |
 |------|--------|
 | `EditMode/NumberFormatterTests.cs` | Suffixes, truncation, boundaries, scientific notation, rates, durations. |
-| `EditMode/ProgressionMathTests.cs` | Upgrade cost curve and rounding, stat stacking, offline earnings cap and efficiency. |
+| `EditMode/ProgressionMathTests.cs` | Upgrade cost curve and rounding, weapon unlock pricing, random index picking, stat stacking, offline earnings cap and efficiency. |
 | `EditMode/WaveMathTests.cs` | Enemy count cap, spawn interval floor, wave scaling, boss cadence, weighted spawn picking. |
-| `EditMode/SaveDataTests.cs` | Upgrade level helpers, JSON round trip of progress. |
+| `EditMode/SaveDataTests.cs` | Upgrade level helpers, JSON round trip of progress (including starting weapon and auto mode settings). |
+| `EditMode/AutoBuyPlannerTests.cs` | Auto mode rule: cheapest cost ÷ weight wins, zero weights are skipped, ship stat → category mapping. |
 | `EditMode/ContentValidationTests.cs` | Loads the **shipped** content and fails on any validation error or missing core asset. |
 
 ## Conventions

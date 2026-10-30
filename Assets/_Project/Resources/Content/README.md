@@ -10,10 +10,10 @@ registration lists, no scene changes.
 | Folder | Asset type (script) | Count | Assets |
 |--------|---------------------|-------|--------|
 | `Ship/` | `ShipDefinition` | exactly 1 | `Ship_Sentinel` |
-| `Weapons/` | `WeaponDefinition` | 1+ (≥1 owned at start) | `Weapon_PulseBlaster`, `Weapon_ScatterCannon`, `Weapon_HomingMissiles` |
+| `Weapons/` | `WeaponDefinition` | 1+ (≥1 can be the starting weapon) | `Weapon_PulseBlaster`, `Weapon_ScatterCannon`, `Weapon_HomingMissiles` |
 | `Enemies/` | `EnemyDefinition` | 1+ | `Enemy_Asteroid`, `Enemy_AsteroidShard`, `Enemy_Drone`, `Enemy_Gunship`, `Enemy_Mothership` |
 | `Milestones/` | `MilestoneDefinition` | any | `Milestone_01` … `Milestone_10` |
-| `Config/` | `WaveConfig`, `EconomyConfig` | exactly 1 each | `WaveConfig`, `EconomyConfig` |
+| `Config/` | `WaveConfig`, `EconomyConfig`, `AutoBuyConfig` | exactly 1 each | `WaveConfig`, `EconomyConfig`, `AutoBuyConfig` |
 
 The current values and the reasoning behind them are in [docs/GAME_DESIGN.md](../../../../docs/GAME_DESIGN.md).
 Field-by-field meaning is in the tooltips (hover a field in the Inspector) and the class docs in
@@ -33,10 +33,22 @@ Field-by-field meaning is in the tooltips (hover a field in the Inspector) and t
 ## How to add a weapon
 1. In `Weapons/`, select an existing weapon and **duplicate** it (Ctrl+D). Rename it to `Weapon_YourName`.
 2. Set a **new unique `Id`** (lower_snake_case, permanent), display name, description and `Sort Order`.
-3. Set acquisition: usually `Owned At Start` off and a `Purchase Cost`.
-4. Tune base stats and projectile settings (`Motion` Homing needs a `Homing Turn Rate`).
-5. Edit its **Upgrades** list (see [upgrade tracks](#how-to-add-an-upgrade-track)).
-6. Make it obtainable: create a milestone whose `Unlock Weapon Id` is your weapon's id (or tick `Owned At Start`).
+3. Set acquisition:
+   - `Available From Start` on: it can be unlocked for the shared price (`EconomyConfig.weaponUnlockCost`) at any
+     time. Off: a milestone must make it available first (set that milestone's `Unlock Weapon Id`).
+   - `Can Be Starting Weapon` on: it may be picked as a new game's random free weapon.
+4. Tune base stats and projectile settings (`Motion` Homing needs a `Homing Turn Rate`). Keep base DPS
+   (damage × fire rate × projectiles) close to the other weapons, so a random starter is never a bad roll.
+5. Edit its **Upgrades** list (see [upgrade tracks](#how-to-add-an-upgrade-track)). Point each track at a shared
+   cost curve (`weapon_damage`, `weapon_fire_rate`, `weapon_utility`, `weapon_special`) so it costs the same as
+   the equivalent upgrade on every other weapon.
+6. It appears automatically as a new entry in the Weapons tab's left-hand list (order = `Sort Order`).
+   Auto mode also starts considering it as soon as it's available.
+
+**Wave-gated weapon (the plan for weapons after wave 10, one per 10 waves):** untick `Available From Start` and
+`Can Be Starting Weapon`, then create a milestone with `Condition` ReachWave, `Target Value` 10 (20, 30…) and
+`Unlock Weapon Id` set to the weapon's id. Until then the weapon's tab shows LOCKED with the milestone text as the
+hint. Once the milestone completes, it costs the normal escalating unlock price.
 7. Validate, playtest, and add it to the weapon tables in `docs/GAME_DESIGN.md`.
 
 ## How to add an enemy
@@ -50,8 +62,9 @@ Field-by-field meaning is in the tooltips (hover a field in the Inspector) and t
 
 ## How to add a milestone
 1. Duplicate a milestone and name it `Milestone_NN_Name` (NN = position).
-2. Unique `Id`, name, description (shown as the goal text, and as the unlock hint for weapons it unlocks).
-3. `Condition` + `Target Value`, then rewards: `Reward Credits` and/or `Unlock Weapon Id`.
+2. Unique `Id`, name, description (shown as the goal text, and as the hint on any weapon it makes available).
+3. `Condition` + `Target Value`, then rewards: `Reward Credits` and/or `Unlock Weapon Id` (makes a weapon that
+   isn't `Available From Start` unlockable).
 4. `Sort Order` controls the order on the GOALS tab.
 
 ## How to add an upgrade track
@@ -63,13 +76,28 @@ On the ship or a weapon asset, add an element to **Upgrades**:
 | `Display Name` / `Description` | Shown on the row. The current → next value line is added automatically. |
 | `Stat` | Which stat it changes (table below). Weapon tracks should target weapon stats. Ship tracks should target ship stats. |
 | `Modifier` | `Flat` adds `Value Per Level` × level to the base. `Percent` adds it to the multiplier (0.1 = +10%/level). |
-| `Base Cost` / `Cost Growth` | Next level costs `ceil(BaseCost × CostGrowth^level)`. Growth must be ≥ 1 (typically 1.15–1.5; use 2–4 for capped "count" upgrades). |
+| `Cost Curve Id` | **Weapons: always set this** to a shared curve in `EconomyConfig` (see below) so equivalent upgrades cost the same on every weapon. When set, `Base Cost`/`Cost Growth` are ignored. |
+| `Base Cost` / `Cost Growth` | Used only when there's no `Cost Curve Id` (ship upgrades). Next level costs `ceil(BaseCost × CostGrowth^level)`. Growth must be ≥ 1 (typically 1.15–1.5; use 2–4 for capped "count" upgrades). |
 | `Max Level` | 0 = unlimited. |
 
 ## How to tune waves and the economy
-`Config/WaveConfig`: enemy counts, spawn timing, per-wave growth of HP/damage/reward/speed, boss cadence, failure
-setback, spawn table. `Config/EconomyConfig`: starting credits, offline efficiency/cap/minimum, income smoothing
-window, autosave interval. See [GAME_DESIGN §7 Tuning guide](../../../../docs/GAME_DESIGN.md#7-tuning-guide).
+- `Config/WaveConfig`: enemy counts, spawn timing, per-wave growth of HP/damage/reward, enemy speed (starting
+  multiplier, growth, cap), boss cadence, failure setback, spawn table.
+- `Config/EconomyConfig`:
+  - **Income:** `Kill Reward Multiplier`, one dial for all kill income (0.9 = 10% less).
+  - **Weapon unlocks:** `Weapon Unlock Cost` (price of the 2nd weapon; the same for whichever weapon you pick)
+    and `Weapon Unlock Cost Growth` (each further weapon costs this much more: 1.5 → 60, 90, 135…).
+  - **Upgrade cost curves:** named `{id, baseCost, costGrowth}` entries shared by weapon upgrade tracks.
+    Re-pricing a curve re-prices that upgrade on every weapon.
+  - Starting credits, offline efficiency/cap/minimum, income smoothing window, autosave interval.
+
+- `Config/AutoBuyConfig`: auto mode shopping interval, purchase cap per pass, and one profile per strategy
+  (Attack / Balanced / Defense). Each profile has a weight per category: weapon upgrade, weapon unlock, ship
+  offense (global damage/fire rate), ship defense (hull/regen/thrusters), ship economy (salvage). Auto mode buys
+  the lowest cost ÷ weight and saves up when that isn't affordable, so a higher weight means bought sooner and
+  0 means never auto-bought. The `description` is shown in the auto mode dialog.
+
+See [GAME_DESIGN §7 Tuning guide](../../../../docs/GAME_DESIGN.md#7-tuning-guide).
 
 ---
 
@@ -101,6 +129,8 @@ window, autosave interval. See [GAME_DESIGN §7 Tuning guide](../../../../docs/G
 **ProjectileMotion:** 0 Straight · 1 Homing
 
 **MilestoneCondition:** 0 ReachWave · 1 TotalKills · 2 TotalCreditsEarned
+
+**AutoBuyStrategy:** 0 Balanced · 1 Attack · 2 Defense
 
 **Booleans:** 0 = false, 1 = true.
 

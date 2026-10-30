@@ -11,14 +11,14 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6b2d4f8a0c3e4d7f9a1b2c3d4e5f6071, type: 3}
   m_Name: Weapon_HomingMissiles
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   id: homing_missiles
   displayName: Seeker Missiles
   description: 'Slow homing missiles that explode on impact.'
   sortOrder: 2
-  ownedAtStart: 0
-  purchaseCost: 1500
-  damage: 30
+  availableFromStart: 1
+  canBeStartingWeapon: 1
+  damage: 20
   fireRate: 0.5
   projectileCount: 2
   spreadAngle: 30
@@ -35,12 +35,11 @@ MonoBehaviour:
   upgrades:
   - id: damage
     displayName: Warheads
-    description: 'Missile damage +25% per level.'
+    description: 'Damage +20% per level.'
     stat: 100
     modifier: 1
-    valuePerLevel: 0.25
-    baseCost: 400
-    costGrowth: 1.25
+    valuePerLevel: 0.2
+    costCurveId: weapon_damage
     maxLevel: 0
   - id: fire_rate
     displayName: Rapid Racks
@@ -48,17 +47,15 @@ MonoBehaviour:
     stat: 101
     modifier: 1
     valuePerLevel: 0.08
-    baseCost: 600
-    costGrowth: 1.32
-    maxLevel: 25
+    costCurveId: weapon_fire_rate
+    maxLevel: 30
   - id: blast_radius
     displayName: Shaped Charge
     description: 'Blast radius +10% per level.'
     stat: 104
     modifier: 1
     valuePerLevel: 0.1
-    baseCost: 800
-    costGrowth: 1.5
+    costCurveId: weapon_utility
     maxLevel: 10
   - id: missiles
     displayName: Extra Tubes
@@ -66,6 +63,5 @@ MonoBehaviour:
     stat: 102
     modifier: 0
     valuePerLevel: 1
-    baseCost: 3000
-    costGrowth: 3
+    costCurveId: weapon_special
     maxLevel: 3

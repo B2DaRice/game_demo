@@ -6,7 +6,8 @@ namespace AstroIdle.Content
     /// <summary>
     /// One purchasable, levelable upgrade (e.g. "Bolt Damage"). Tracks are owned by a ShipDefinition or
     /// WeaponDefinition; the player's level is saved under the key "{ownerId}.{trackId}".
-    /// Cost of the next level = baseCost * costGrowth ^ currentLevel (see ProgressionMath).
+    /// Cost of the next level = baseCost * costGrowth ^ currentLevel (see ProgressionMath). When costCurveId is
+    /// set, the shared CostCurve from EconomyConfig supplies baseCost/costGrowth instead (resolved by UpgradeService).
     /// </summary>
     [Serializable]
     public class UpgradeTrack
@@ -23,6 +24,8 @@ namespace AstroIdle.Content
         [SerializeField] private float valuePerLevel = 0.1f;
 
         [Header("Cost")]
+        [Tooltip("Optional id of a shared CostCurve in EconomyConfig. When set, Base Cost and Cost Growth below are ignored.")]
+        [SerializeField] private string costCurveId = "";
         [SerializeField] private double baseCost = 10d;
         [Tooltip("Cost multiplier per level owned. Must be >= 1. Typical idle range: 1.07 - 1.5.")]
         [SerializeField] private float costGrowth = 1.15f;
@@ -35,6 +38,7 @@ namespace AstroIdle.Content
         public StatId Stat => stat;
         public ModifierKind Modifier => modifier;
         public float ValuePerLevel => valuePerLevel;
+        public string CostCurveId => costCurveId;
         public double BaseCost => baseCost;
         public float CostGrowth => costGrowth;
         public int MaxLevel => maxLevel;

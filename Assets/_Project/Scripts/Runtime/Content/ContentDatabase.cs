@@ -26,11 +26,13 @@ namespace AstroIdle.Content
             IEnumerable<EnemyDefinition> enemies,
             IEnumerable<MilestoneDefinition> milestones,
             WaveConfig waves,
-            EconomyConfig economy)
+            EconomyConfig economy,
+            AutoBuyConfig autoBuy)
         {
             Ship = ship;
             Waves = waves;
             Economy = economy;
+            AutoBuy = autoBuy;
             Weapons = (weapons ?? Enumerable.Empty<WeaponDefinition>())
                 .Where(w => w != null).OrderBy(w => w.SortOrder).ThenBy(w => w.Id).ToList();
             Enemies = (enemies ?? Enumerable.Empty<EnemyDefinition>())
@@ -48,6 +50,7 @@ namespace AstroIdle.Content
         public IReadOnlyList<MilestoneDefinition> Milestones { get; }
         public WaveConfig Waves { get; }
         public EconomyConfig Economy { get; }
+        public AutoBuyConfig AutoBuy { get; }
 
         /// <summary>Loads every content asset from the Resources/Content sub-folders.</summary>
         public static ContentDatabase LoadFromResources()
@@ -58,7 +61,8 @@ namespace AstroIdle.Content
                 Resources.LoadAll<EnemyDefinition>(EnemiesPath),
                 Resources.LoadAll<MilestoneDefinition>(MilestonesPath),
                 Resources.LoadAll<WaveConfig>(ConfigPath).FirstOrDefault(),
-                Resources.LoadAll<EconomyConfig>(ConfigPath).FirstOrDefault());
+                Resources.LoadAll<EconomyConfig>(ConfigPath).FirstOrDefault(),
+                Resources.LoadAll<AutoBuyConfig>(ConfigPath).FirstOrDefault());
         }
 
         public WeaponDefinition GetWeapon(string id)
@@ -84,12 +88,15 @@ namespace AstroIdle.Content
 
             if (Waves == null) errors.Add($"No WaveConfig found in Resources/{ConfigPath}.");
             if (Economy == null) errors.Add($"No EconomyConfig found in Resources/{ConfigPath}.");
+            else ValidateEconomy(errors);
+            if (AutoBuy == null) errors.Add($"No AutoBuyConfig found in Resources/{ConfigPath}.");
+            else ValidateAutoBuy(errors);
 
             CheckUniqueIds(Weapons, w => w.Id, "Weapon", errors);
             CheckUniqueIds(Enemies, e => e.Id, "Enemy", errors);
             CheckUniqueIds(Milestones, m => m.Id, "Milestone", errors);
 
-            if (!Weapons.Any(w => w.OwnedAtStart)) errors.Add("At least one weapon must have 'Owned At Start' enabled.");
+            if (!Weapons.Any(w => w.CanBeStartingWeapon)) errors.Add("At least one weapon must have 'Can Be Starting Weapon' enabled.");
 
             foreach (WeaponDefinition weapon in Weapons)
             {
@@ -130,13 +137,62 @@ namespace AstroIdle.Content
             return errors;
         }
 
-        private static void ValidateTracks(string owner, IReadOnlyList<UpgradeTrack> tracks, List<string> errors)
+        private void ValidateEconomy(List<string> errors)
+        {
+            if (Economy.WeaponUnlockCost <= 0d) errors.Add("EconomyConfig weapon unlock cost must be > 0.");
+            if (Economy.WeaponUnlockCostGrowth < 1f) errors.Add("EconomyConfig weapon unlock cost growth must be >= 1.");
+
+            CheckUniqueIds(Economy.UpgradeCostCurves, c => c.Id, "Cost curve", errors);
+            foreach (CostCurve curve in Economy.UpgradeCostCurves)
+            {
+                if (curve.BaseCost <= 0d) errors.Add($"Cost curve '{curve.Id}' base cost must be > 0.");
+                if (curve.CostGrowth < 1f) errors.Add($"Cost curve '{curve.Id}' cost growth must be >= 1.");
+            }
+        }
+
+        private void ValidateAutoBuy(List<string> errors)
+        {
+            if (AutoBuy.TickIntervalSeconds <= 0f) errors.Add("AutoBuyConfig tick interval must be > 0.");
+            if (AutoBuy.MaxPurchasesPerTick <= 0) errors.Add("AutoBuyConfig max purchases per tick must be > 0.");
+
+            foreach (AutoBuyStrategy strategy in (AutoBuyStrategy[])Enum.GetValues(typeof(AutoBuyStrategy)))
+            {
+                AutoBuyProfile profile = AutoBuy.GetProfile(strategy);
+                if (profile == null)
+                {
+                    errors.Add($"AutoBuyConfig has no profile for strategy '{strategy}'.");
+                    continue;
+                }
+
+                bool anyPositive = false;
+                foreach (AutoBuyCategory category in (AutoBuyCategory[])Enum.GetValues(typeof(AutoBuyCategory)))
+                {
+                    float weight = profile.GetWeight(category);
+                    if (weight < 0f) errors.Add($"AutoBuy profile '{strategy}' has a negative {category} weight.");
+                    anyPositive |= weight > 0f;
+                }
+                if (!anyPositive) errors.Add($"AutoBuy profile '{strategy}' has no positive weights, so it would never buy anything.");
+            }
+        }
+
+        private void ValidateTracks(string owner, IReadOnlyList<UpgradeTrack> tracks, List<string> errors)
         {
             var seen = new HashSet<string>();
             foreach (UpgradeTrack track in tracks)
             {
                 if (string.IsNullOrEmpty(track.Id)) errors.Add($"{owner} has an upgrade with an empty id.");
                 else if (!seen.Add(track.Id)) errors.Add($"{owner} has duplicate upgrade id '{track.Id}'.");
+
+                if (!string.IsNullOrEmpty(track.CostCurveId))
+                {
+                    // Shared curve: its own values are validated in ValidateEconomy.
+                    if (Economy != null && Economy.GetCostCurve(track.CostCurveId) == null)
+                    {
+                        errors.Add($"{owner} upgrade '{track.Id}' uses unknown cost curve '{track.CostCurveId}'.");
+                    }
+                    continue;
+                }
+
                 if (track.CostGrowth < 1f) errors.Add($"{owner} upgrade '{track.Id}' cost growth must be >= 1.");
                 if (track.BaseCost <= 0d) errors.Add($"{owner} upgrade '{track.Id}' base cost must be > 0.");
             }

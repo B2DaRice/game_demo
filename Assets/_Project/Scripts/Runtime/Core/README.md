@@ -4,7 +4,7 @@ Layer 7: shared top-level wiring that sits above Gameplay and below UI.
 
 | File | Purpose |
 |------|---------|
-| `GameContext.cs` | One object holding every service and top-level system (content, save, wallet, upgrades, weapons, milestones, rewards, gameplay context, player, wave director), plus the `SaveNow` and `ResetProgress` actions. Built by [`GameBootstrap`](../Bootstrap/README.md) and passed to the [UI](../UI/README.md). |
+| `GameContext.cs` | One object holding every service and top-level system (content, save, wallet, upgrades, weapons, milestones, rewards, auto buy, gameplay context, player, wave director), plus the `SaveNow` and `ResetProgress` actions. Built by [`GameBootstrap`](../Bootstrap/README.md) and passed to the [UI](../UI/README.md). |
 
 ## Why it exists
 

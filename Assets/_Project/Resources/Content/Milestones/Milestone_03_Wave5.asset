@@ -10,13 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: af6b8d2e4a7c4b1d3e5f607182930415, type: 3}
-  m_Name: Milestone_06_MissileLicense
+  m_Name: Milestone_03_Wave5
   m_EditorClassIdentifier: 
-  id: missile_license
-  displayName: Seeker License
-  description: 'Reach wave 10.'
-  sortOrder: 6
+  id: reach_wave_5
+  displayName: Picking Up Speed
+  description: 'Reach wave 5.'
+  sortOrder: 3
   condition: 0
-  targetValue: 10
-  rewardCredits: 0
-  unlockWeaponId: homing_missiles
+  targetValue: 5
+  rewardCredits: 150
+  unlockWeaponId: ''

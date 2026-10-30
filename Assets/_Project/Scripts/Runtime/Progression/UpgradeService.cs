@@ -35,7 +35,19 @@ namespace AstroIdle.Progression
 
         public double GetCost(string ownerId, UpgradeTrack track)
         {
-            return ProgressionMath.UpgradeCost(track.BaseCost, track.CostGrowth, GetLevel(ownerId, track));
+            // Tracks may point at a shared curve in EconomyConfig so equivalent upgrades cost the same everywhere.
+            CostCurve curve = content.Economy.GetCostCurve(track.CostCurveId);
+            double baseCost = curve != null ? curve.BaseCost : track.BaseCost;
+            float growth = curve != null ? curve.CostGrowth : track.CostGrowth;
+            return ProgressionMath.UpgradeCost(baseCost, growth, GetLevel(ownerId, track));
+        }
+
+        /// <summary>Sum of all upgrade levels bought for one ship/weapon (shown on the weapon sub-tabs).</summary>
+        public int GetTotalLevels(string ownerId, IReadOnlyList<UpgradeTrack> tracks)
+        {
+            int total = 0;
+            for (int i = 0; i < tracks.Count; i++) total += GetLevel(ownerId, tracks[i]);
+            return total;
         }
 
         public bool CanPurchase(string ownerId, UpgradeTrack track)

@@ -7,7 +7,8 @@ using UnityEngine.UI;
 namespace AstroIdle.UI
 {
     /// <summary>
-    /// Builds and lays out the entire UI from code: canvas, event system, HUD, bottom panel, toasts and popups.
+    /// Builds and lays out the entire UI from code: canvas, event system, HUD, bottom panel, auto mode button and
+    /// dialog, toasts and popups.
     /// Layout regions come from ScreenLayout so the UI always matches the camera's play field.
     /// </summary>
     public class UIRoot : MonoBehaviour
@@ -18,6 +19,7 @@ namespace AstroIdle.UI
         private BottomPanelView panel;
         private HudView hud;
         private ToastView toast;
+        private AutoModeButton autoModeButton;
 
         public OfflineEarningsPopup OfflinePopup { get; private set; }
 
@@ -42,6 +44,9 @@ namespace AstroIdle.UI
             panel = BottomPanelView.Create(canvasRect, context);
             hud = HudView.Create(canvasRect, context);
             toast = ToastView.Create(canvasRect);
+            AutoModeDialog autoModeDialog = AutoModeDialog.Create(canvasRect, context.AutoBuy, context.Content.AutoBuy);
+            autoModeButton = AutoModeButton.Create(canvasRect, context.AutoBuy, autoModeDialog);
+            autoModeDialog.transform.SetAsLastSibling(); // dialog draws above its button
             OfflinePopup = OfflineEarningsPopup.Create(canvasRect);
 
             ApplyLayout();
@@ -57,6 +62,8 @@ namespace AstroIdle.UI
             UiFactory.SetRegion(panel.Rect, 0f, ScreenLayout.SafeBottom, 1f, panelTop);
             UiFactory.SetRegion(hud.Rect, 0f, hudBottom, 1f, ScreenLayout.SafeTop);
             UiFactory.SetRegion(toast.Rect, 0.05f, hudBottom - 0.065f, 0.95f, hudBottom - 0.01f);
+            // Bottom-right corner of the play field, just above the upgrade panel (clear of the HUD and toasts).
+            UiFactory.SetRegion(autoModeButton.Rect, 0.81f, panelTop + 0.012f, 0.97f, panelTop + 0.072f);
         }
 
         private static void EnsureEventSystem()

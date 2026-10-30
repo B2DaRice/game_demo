@@ -23,7 +23,11 @@ namespace AstroIdle.UI.Tabs
 
         public string Title => "DEV";
 
-        public IEnumerable<IRowBinding> BuildRows()
+        public IReadOnlyList<ISubTab> SubTabs => System.Array.Empty<ISubTab>();
+
+        public int DefaultSubTabIndex => 0;
+
+        public IEnumerable<IRowBinding> BuildRows(int subTabIndex)
         {
             yield return new ActionRowBinding(
                 () => "Grant credits",

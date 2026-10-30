@@ -18,7 +18,11 @@ namespace AstroIdle.UI.Tabs
 
         public string Title => "SHIP";
 
-        public IEnumerable<IRowBinding> BuildRows()
+        public IReadOnlyList<ISubTab> SubTabs => System.Array.Empty<ISubTab>();
+
+        public int DefaultSubTabIndex => 0;
+
+        public IEnumerable<IRowBinding> BuildRows(int subTabIndex)
         {
             ShipDefinition ship = context.Content.Ship;
             yield return new ActionRowBinding(

@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b07c9e3f5a8d4c2e4f6a7182930a4b5c, type: 3}
+  m_Name: AutoBuyConfig
+  m_EditorClassIdentifier:
+  tickIntervalSeconds: 0.5
+  maxPurchasesPerTick: 10
+  profiles:
+  - strategy: 1
+    displayName: Attack
+    description: 'Weapons first: upgrades and new weapons get top priority. About a quarter of credits go to the ship, mostly global damage and fire rate.'
+    weaponUpgradeWeight: 1
+    weaponUnlockWeight: 1.6
+    shipOffenseWeight: 0.8
+    shipDefenseWeight: 0.3
+    shipEconomyWeight: 0.5
+  - strategy: 0
+    displayName: Balanced
+    description: 'An even mix. About a third of credits go to the ship (hull, regen and income), the rest to weapons and unlocks.'
+    weaponUpgradeWeight: 1
+    weaponUnlockWeight: 1.4
+    shipOffenseWeight: 0.6
+    shipDefenseWeight: 0.6
+    shipEconomyWeight: 0.6
+  - strategy: 2
+    displayName: Defense
+    description: 'Survival first: hull, regen and thrusters get top priority. Close to half of credits go to the ship, and weapons grow more slowly.'
+    weaponUpgradeWeight: 0.7
+    weaponUnlockWeight: 1
+    shipOffenseWeight: 0.4
+    shipDefenseWeight: 1
+    shipEconomyWeight: 0.5

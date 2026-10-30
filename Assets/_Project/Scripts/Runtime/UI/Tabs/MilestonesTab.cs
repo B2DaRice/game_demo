@@ -17,7 +17,11 @@ namespace AstroIdle.UI.Tabs
 
         public string Title => "GOALS";
 
-        public IEnumerable<IRowBinding> BuildRows()
+        public IReadOnlyList<ISubTab> SubTabs => System.Array.Empty<ISubTab>();
+
+        public int DefaultSubTabIndex => 0;
+
+        public IEnumerable<IRowBinding> BuildRows(int subTabIndex)
         {
             foreach (MilestoneDefinition milestone in context.Content.Milestones)
             {

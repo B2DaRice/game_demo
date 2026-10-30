@@ -9,7 +9,7 @@ namespace AstroIdle.UI
 {
     /// <summary>
     /// Queued, auto-fading notification banner just below the HUD. Listens to the events that deserve a
-    /// message (milestones, unlocks, wave failure) plus the generic GameEvents.ToastRequested.
+    /// message (milestones, weapon availability/unlocks, wave failure) plus the generic GameEvents.ToastRequested.
     /// </summary>
     public class ToastView : MonoBehaviour
     {
@@ -38,6 +38,7 @@ namespace AstroIdle.UI
             GameEvents.ToastRequested += view.Enqueue;
             GameEvents.MilestoneCompleted += view.OnMilestoneCompleted;
             GameEvents.WeaponUnlocked += view.OnWeaponUnlocked;
+            GameEvents.WeaponPurchased += view.OnWeaponPurchased;
             GameEvents.WaveFailed += view.OnWaveFailed;
             return view;
         }
@@ -52,6 +53,7 @@ namespace AstroIdle.UI
             GameEvents.ToastRequested -= Enqueue;
             GameEvents.MilestoneCompleted -= OnMilestoneCompleted;
             GameEvents.WeaponUnlocked -= OnWeaponUnlocked;
+            GameEvents.WeaponPurchased -= OnWeaponPurchased;
             GameEvents.WaveFailed -= OnWaveFailed;
         }
 
@@ -80,6 +82,11 @@ namespace AstroIdle.UI
         private void OnWeaponUnlocked(WeaponDefinition weapon)
         {
             Enqueue($"<color=#FFD95A>New weapon available:</color> {weapon.DisplayName}");
+        }
+
+        private void OnWeaponPurchased(WeaponDefinition weapon)
+        {
+            Enqueue($"<color=#7CFF9A>Weapon online:</color> {weapon.DisplayName}");
         }
 
         private void OnWaveFailed(int retreatWave)

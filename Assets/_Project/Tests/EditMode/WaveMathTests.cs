@@ -44,6 +44,7 @@ namespace AstroIdle.Tests
             var first = WaveMath.Scaling(config, 1);
             Assert.AreEqual(1f, first.HealthMultiplier, 1e-4f);
             Assert.AreEqual(1d, first.RewardMultiplier, 1e-6d);
+            Assert.AreEqual(config.StartingSpeedMultiplier, first.SpeedMultiplier, 1e-4f);
 
             var later = WaveMath.Scaling(config, 11);
             Assert.Greater(later.HealthMultiplier, 1f);

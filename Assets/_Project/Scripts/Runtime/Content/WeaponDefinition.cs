@@ -6,8 +6,9 @@ namespace AstroIdle.Content
 {
     /// <summary>
     /// A weapon the ship can own. All owned weapons fire automatically and independently at the nearest
-    /// enemy in range. Weapons become purchasable when a MilestoneDefinition unlocks them
-    /// (or immediately if <see cref="OwnedAtStart"/>).
+    /// enemy in range. A new game starts with one random weapon (chosen from those marked
+    /// <see cref="CanBeStartingWeapon"/>); the others are unlocked for the shared price in EconomyConfig.
+    /// Weapons not <see cref="AvailableFromStart"/> must first be made available by a milestone.
     /// </summary>
     [CreateAssetMenu(menuName = "Astro Idle/Weapon Definition", fileName = "Weapon_New")]
     public class WeaponDefinition : ScriptableObject
@@ -21,9 +22,10 @@ namespace AstroIdle.Content
         [SerializeField] private int sortOrder = 0;
 
         [Header("Acquisition")]
-        [SerializeField] private bool ownedAtStart = false;
-        [Tooltip("Credits to buy once unlocked. 0 = granted automatically when unlocked.")]
-        [SerializeField] private double purchaseCost = 100d;
+        [Tooltip("Can be unlocked from the start of the game. If off, a milestone must make it available first.")]
+        [SerializeField] private bool availableFromStart = true;
+        [Tooltip("Can be picked as the random free weapon a new game starts with.")]
+        [SerializeField] private bool canBeStartingWeapon = true;
 
         [Header("Base Stats")]
         [SerializeField] private float damage = 10f;
@@ -56,8 +58,8 @@ namespace AstroIdle.Content
         public string DisplayName => displayName;
         public string Description => description;
         public int SortOrder => sortOrder;
-        public bool OwnedAtStart => ownedAtStart;
-        public double PurchaseCost => purchaseCost;
+        public bool AvailableFromStart => availableFromStart;
+        public bool CanBeStartingWeapon => canBeStartingWeapon;
         public float SpreadAngle => spreadAngle;
         public ProjectileMotion Motion => motion;
         public float HomingTurnRate => homingTurnRate;

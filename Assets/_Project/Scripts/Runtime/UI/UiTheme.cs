@@ -20,9 +20,14 @@ namespace AstroIdle.UI
         public static readonly Color RowCompletedBackground = new Color(0.10f, 0.20f, 0.14f, 1f);
         public static readonly Color RowLockedBackground = new Color(0.09f, 0.09f, 0.11f, 1f);
 
+        public static readonly Color SubTabBackground = new Color(0.10f, 0.12f, 0.17f, 1f);
+        public static readonly Color SubTabSelected = new Color(0.17f, 0.30f, 0.52f, 1f);
+        public static readonly Color SubTabDimmed = new Color(0.07f, 0.08f, 0.11f, 1f);
+
         public static readonly Color ButtonPrimary = new Color(0.20f, 0.55f, 0.95f, 1f);
         public static readonly Color ButtonSecondary = new Color(0.22f, 0.25f, 0.33f, 1f);
         public static readonly Color ButtonWarning = new Color(0.95f, 0.55f, 0.20f, 1f);
+        public static readonly Color AutoModeOn = new Color(0.18f, 0.62f, 0.38f, 1f);
 
         public static readonly Color TextPrimary = new Color(0.93f, 0.95f, 1f, 1f);
         public static readonly Color TextSecondary = new Color(0.65f, 0.70f, 0.80f, 1f);

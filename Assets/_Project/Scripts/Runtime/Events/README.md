@@ -20,8 +20,8 @@ Layer 3: the global **event hub** that lets systems announce what happened witho
 | `AutoAdvanceChanged(on)` | `WaveDirector.SetAutoAdvance` | (free) |
 | `CreditsChanged(total)` | `CurrencyWallet` | (free; UI polls instead) |
 | `UpgradePurchased(key)` | `UpgradeService.TryPurchase` | `PlayerShip` (refresh stats) |
-| `WeaponUnlocked(def)` | `WeaponInventory.Unlock` | `ToastView`, `BottomPanelView` |
-| `WeaponPurchased(def)` | `WeaponInventory` | `PlayerShip` (mount weapon), `BottomPanelView` |
+| `WeaponUnlocked(def)` | `WeaponInventory.MakeAvailable` (milestone made a gated weapon unlockable) | `ToastView`, `BottomPanelView` |
+| `WeaponPurchased(def)` | `WeaponInventory.TryUnlock` (player paid to unlock/equip a weapon) | `PlayerShip` (mount weapon), `BottomPanelView`, `ToastView` |
 | `MilestoneCompleted(def)` | `MilestoneService` | `ToastView`, `BottomPanelView` |
 | `ToastRequested(text)` | anyone | `ToastView` |
 

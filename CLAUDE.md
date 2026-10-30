@@ -20,7 +20,8 @@ Human developers should follow it too.
   `Assets/_Project/Resources/Content/`, not in C#. Follow the
   [content guide](Assets/_Project/Resources/Content/README.md) to add a weapon, enemy, upgrade or milestone.
 - **Serialized enums are append-only:** `StatId`, `ModifierKind`, `ShapeType`, `EnemyBehaviourType`,
-  `ProjectileMotion` and `MilestoneCondition` are stored as integers in `.asset` files. Never reorder or renumber them.
+  `ProjectileMotion`, `MilestoneCondition`, `AutoBuyStrategy` and `AutoBuyCategory` are stored as integers in `.asset`
+  or save files. Never reorder or renumber them.
 - **Ids are permanent:** content ids and upgrade track ids are written into players' save files. Don't rename them.
 - **Save compatibility:** only add fields to `SaveData`. Anything else requires a version bump plus a migration in
   `SaveService.Migrate`.

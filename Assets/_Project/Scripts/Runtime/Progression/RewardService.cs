@@ -6,7 +6,8 @@ using AstroIdle.Persistence;
 namespace AstroIdle.Progression
 {
     /// <summary>
-    /// Turns enemy kills into credits (applying the ship's credit multiplier), counts kills, and maintains a
+    /// Turns enemy kills into credits (applying EconomyConfig.killRewardMultiplier and the ship's credit multiplier),
+    /// counts kills, and maintains a
     /// smoothed "credits per second" estimate that drives the HUD and offline earnings.
     /// </summary>
     public class RewardService : IDisposable
@@ -56,7 +57,7 @@ namespace AstroIdle.Progression
         private void OnEnemyKilled(EnemyKilledInfo info)
         {
             save.totalKills++;
-            double amount = info.CreditReward * upgrades.GetShipStat(StatId.CreditMultiplier);
+            double amount = info.CreditReward * economy.KillRewardMultiplier * upgrades.GetShipStat(StatId.CreditMultiplier);
             wallet.Add(amount);
             sampleCredits += amount;
         }

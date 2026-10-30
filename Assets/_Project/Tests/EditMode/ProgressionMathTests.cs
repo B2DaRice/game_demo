@@ -14,6 +14,26 @@ namespace AstroIdle.Tests
         }
 
         [Test]
+        public void WeaponUnlockCost_IsFlatWithGrowthOneAndScalesWithOwnedWeapons()
+        {
+            Assert.AreEqual(15d, ProgressionMath.WeaponUnlockCost(15d, 1f, 1));
+            Assert.AreEqual(15d, ProgressionMath.WeaponUnlockCost(15d, 1f, 3));
+            Assert.AreEqual(15d, ProgressionMath.WeaponUnlockCost(15d, 2f, 1), "first extra weapon uses the base price");
+            Assert.AreEqual(30d, ProgressionMath.WeaponUnlockCost(15d, 2f, 2));
+            Assert.AreEqual(60d, ProgressionMath.WeaponUnlockCost(15d, 2f, 3));
+        }
+
+        [Test]
+        public void PickIndex_MapsRollAcrossRangeAndHandlesEdges()
+        {
+            Assert.AreEqual(0, ProgressionMath.PickIndex(3, 0f));
+            Assert.AreEqual(1, ProgressionMath.PickIndex(3, 0.5f));
+            Assert.AreEqual(2, ProgressionMath.PickIndex(3, 0.99f));
+            Assert.AreEqual(2, ProgressionMath.PickIndex(3, 1f), "a roll of exactly 1 stays in range");
+            Assert.AreEqual(-1, ProgressionMath.PickIndex(0, 0.5f));
+        }
+
+        [Test]
         public void EvaluateStat_AppliesFlatThenPercent()
         {
             Assert.AreEqual(10f, ProgressionMath.EvaluateStat(10f, 0f, 0f), 1e-4f);

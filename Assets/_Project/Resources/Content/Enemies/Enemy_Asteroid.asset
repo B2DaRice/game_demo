@@ -19,7 +19,7 @@ MonoBehaviour:
   radius: 0.55
   spinSpeed: 40
   faceDirection: 0
-  maxHealth: 20
+  maxHealth: 30
   contactDamage: 10
   moveSpeed: 1.1
   creditReward: 3

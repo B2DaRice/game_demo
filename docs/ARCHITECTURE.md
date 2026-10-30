@@ -60,7 +60,7 @@ may use anything *above* it in this list and nothing below it:
 | 2 | `AstroIdle.Content` | ScriptableObject definitions plus the content registry. Pure data. | `WeaponDefinition`, `WaveConfig`, `ContentDatabase` |
 | 3 | `AstroIdle.Events` | Global event hub and payloads. | `GameEvents`, `EnemyKilledInfo` |
 | 4 | `AstroIdle.Persistence` | Save data model and file IO. | `SaveData`, `SaveService` |
-| 5 | `AstroIdle.Progression` | Economy and meta-progression rules (no MonoBehaviours). | `CurrencyWallet`, `UpgradeService`, `MilestoneService` |
+| 5 | `AstroIdle.Progression` | Economy and meta-progression rules (no MonoBehaviours), including auto mode. | `CurrencyWallet`, `UpgradeService`, `MilestoneService`, `AutoBuyService` |
 | 6 | `AstroIdle.Gameplay.*` | Real-time simulation: arena, combat, enemies, player, weapons, waves, effects. | `PlayerShip`, `Enemy`, `WaveDirector` |
 | 7 | `AstroIdle.Core` | `GameContext`: the bag of top-level references handed to the UI. | `GameContext` |
 | 8 | `AstroIdle.UI` | Presentation and input. Reads state, issues commands. | `HudView`, `BottomPanelView`, tabs, bindings |
@@ -88,8 +88,8 @@ Each folder has a README with details:
 1. App settings: 60 FPS target, screen never sleeps, time scale 1.
 2. `ContentDatabase.LoadFromResources()` then `Validate()`. Errors are logged. Missing core content aborts startup.
 3. `SaveService.Load()` returns existing or new `SaveData`.
-4. Create services in dependency order: `CurrencyWallet` → `WeaponInventory` (grants starting weapons) →
-   `UpgradeService` → `MilestoneService` → `RewardService`.
+4. Create services in dependency order: `CurrencyWallet` → `WeaponInventory` (grants a random starting weapon on a new game) →
+   `UpgradeService` → `MilestoneService` → `RewardService` → `AutoBuyService`.
 5. Configure the camera (`ArenaCamera`) and compute the `PlayArea`.
 6. Create the world: spawners (with pools), effects, starfield, `PlayerShip`, `WaveDirector`. Bundle into
    `GameplayContext`.
@@ -107,7 +107,8 @@ Per frame (each item is its own `Update`):
 - **WaveDirector:** spawn on interval → detect clear → intermission → next wave. Handles ship destruction a frame
   later (never inside a damage call).
 - **EffectsSystem:** animates pooled particles.
-- **GameBootstrap:** income smoothing, milestone check (4×/s), autosave (every 15s), screen-change relayout.
+- **GameBootstrap:** income smoothing, auto mode shopping (every 0.5s when on), milestone check (4×/s),
+  autosave (every 15s), screen-change relayout.
 - **UI:** HUD refreshes at 10×/s, panel rows at 5×/s.
 
 A kill, end to end:
@@ -131,6 +132,8 @@ Lower layers never call higher layers directly. When they need to notify upward,
   startup. **Drop a new asset in the right folder and it's in the game.** No lists to register it in.
 - Cross-references use **string ids** (`splitIntoEnemyId`, `unlockWeaponId`, spawn table `enemyId`), not asset
   references. Ids are stable for save files, easy to read in YAML, and checked by `ContentDatabase.Validate()`.
+- Pricing is centralized: weapon unlocks use one shared price in `EconomyConfig`, and weapon upgrade tracks
+  reference shared **cost curves** there by id, so equivalent upgrades cost the same on every weapon.
 - Stats are modified through **upgrade tracks** owned by the ship or a weapon. A track changes one `StatId` by a
   `Flat` or `Percent` amount per level. `UpgradeService` is the single place final stats are computed.
 - Authoring guide: [Content README](../Assets/_Project/Resources/Content/README.md).
@@ -178,5 +181,5 @@ Lower layers never call higher layers directly. When they need to notify upward,
 | Milestone condition | Append to `MilestoneCondition`, handle it in `MilestoneService.GetCurrentValue`. | Yes, small |
 | Projectile motion | Append to `ProjectileMotion`, handle it in `Projectile.Update`. | Yes, small |
 | Shape | Append to `ShapeType`, add a polygon in `ShapeSpriteFactory.GetPolygon`. | Yes, small |
-| UI tab | Implement `IPanelTab`, add it in `BottomPanelView.CreateTabs`. | Yes, small |
+| UI tab (optionally with a left-hand sub-tab list) | Implement `IPanelTab` (and `ISubTab` per entry), add it in `BottomPanelView.CreateTabs`. | Yes, small |
 | Currency (e.g. prestige) | Add fields to `SaveData`, extend or add a wallet, add UI. | Yes, medium |

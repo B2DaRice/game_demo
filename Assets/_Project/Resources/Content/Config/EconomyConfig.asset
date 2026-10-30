@@ -13,6 +13,22 @@ MonoBehaviour:
   m_Name: EconomyConfig
   m_EditorClassIdentifier:
   startingCredits: 0
+  killRewardMultiplier: 0.9
+  weaponUnlockCost: 60
+  weaponUnlockCostGrowth: 1.5
+  upgradeCostCurves:
+  - id: weapon_damage
+    baseCost: 10
+    costGrowth: 1.25
+  - id: weapon_fire_rate
+    baseCost: 20
+    costGrowth: 1.3
+  - id: weapon_utility
+    baseCost: 60
+    costGrowth: 1.45
+  - id: weapon_special
+    baseCost: 250
+    costGrowth: 3
   offlineEfficiency: 0.25
   maxOfflineHours: 8
   minOfflineSeconds: 120

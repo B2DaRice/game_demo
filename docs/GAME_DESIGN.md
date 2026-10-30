@@ -28,10 +28,10 @@ the phone is in your pocket.
         ┌──────────── fight wave (automatic) ◄──────────────┐
         │                                                    │
         ▼                                                    │
-  kills → credits ──► spend on upgrades / weapons ──► stronger ship
-        │                                                    ▲
-        ▼                                                    │
-  milestones reached ──► new weapons unlocked for purchase ──┘
+  kills → credits ──► spend: unlock more weapons (broad) ──► stronger ship
+        │             or upgrade a few weapons (deep)            ▲
+        ▼                                                        │
+  milestones reached ──► bonus credits ──────────────────────────┘
 
   ship destroyed ──► fall back one wave + "farming" mode ──► upgrade ──► tap ADVANCE
 ```
@@ -54,7 +54,20 @@ the phone is in your pocket.
 - Straight projectiles lead their target. Homing projectiles steer toward their target (or re-acquire one).
 - Stats per weapon: damage, fire rate (volleys/sec), projectiles per volley, spread angle, projectile speed, range,
   pierce, splash radius.
-- New weapons are **unlocked by milestones**, then **bought** with credits.
+- **Random starter:** a new game starts with one weapon picked at random (from weapons marked *Can Be Starting
+  Weapon*), so runs don't all open the same way. The Weapons tab opens on that weapon.
+- **Broad vs. deep:** every other weapon can be **unlocked from the start**. The price depends only on how many
+  weapons you own, not on which weapon: the 2nd weapon costs **60** (about the first four damage upgrades on your
+  starter: 10 + 13 + 16 + 20), the 3rd costs **90**, the 4th **135** (×1.5 each). The core choice is: put credits
+  into one weapon's upgrades, or unlock more weapons and upgrade each a little. Target: a player can own all three
+  current weapons around **wave 7–8**, depending on how they spend.
+- **Same price per level everywhere:** equivalent upgrades cost the same on every weapon. All weapon tracks use
+  shared **cost curves** from `EconomyConfig` (damage, fire rate, utility, special), so one edit re-prices every
+  weapon at once.
+- **Planned: one new weapon every 10 waves after wave 10.** Each will be held back behind a "Reach wave 10/20/30…"
+  milestone (untick *Available From Start* and point that milestone's *Unlock Weapon Id* at it). When the milestone
+  completes, the weapon shows up for the same escalating unlock price. No such weapons exist yet. See
+  [§9](#9-roadmap--backlog) and the [content guide](../Assets/_Project/Resources/Content/README.md#how-to-add-a-weapon).
 
 ### 3.3 Enemies
 | Behaviour | Description | Used by |
@@ -92,13 +105,34 @@ the phone is in your pocket.
 
 ### 3.8 Milestones (progression tracking)
 - One-time goals: *reach wave N*, *destroy N enemies*, *earn N credits in total*.
-- Rewards: credits and/or **unlocking a weapon** for purchase.
+- Rewards: credits and/or making a gated weapon available to unlock (no weapons are gated right now).
 - Shown on the **GOALS** tab with live progress. Completing one shows a toast.
 - Milestones are the player-facing "level up" system for this pass. Wave number is the main measure of progress.
 
 ### 3.9 Offline earnings
 - On return after ≥ 2 minutes away: `credits/sec × time away × 25%`, capped at 8 hours, collected via a popup.
 - Uses the smoothed live credits/sec, so farming a good wave before closing the app pays off.
+
+### 3.10 Auto mode
+- A small **AUTO** button sits at the bottom-right of the play field. Tapping it opens a dialog with an **ON/OFF**
+  switch and a priority: **Attack**, **Balanced** or **Defense**. Settings are saved.
+- When ON, auto mode shops every 0.5s with the same buy calls the UI uses. The player can still buy manually at
+  any time.
+- **Rule:** every purchasable thing is a candidate in one of five categories (weapon upgrade, weapon unlock, ship
+  offense, ship defense, ship economy). Auto mode picks the candidate with the lowest **cost ÷ category weight**.
+  If that one isn't affordable yet, it **saves up** for it instead of buying something less important. Each
+  purchase raises that track's next price, so spending spreads across categories roughly in proportion to their
+  weights.
+- Ship tracks map to categories by stat: hull/regen/thrusters → defense, Salvage Drones → economy,
+  Overcharge/Fire Control → offense.
+
+| Strategy | Weapon upgrades | Weapon unlocks | Ship offense | Ship defense | Ship economy | ≈ share spent on the ship* |
+|----------|-----------------|----------------|--------------|--------------|--------------|-----------------------------|
+| Attack | 1.0 | 1.6 | 0.8 | 0.3 | 0.5 | ~25% |
+| Balanced (default) | 1.0 | 1.4 | 0.6 | 0.6 | 0.6 | ~33% |
+| Defense | 0.7 | 1.0 | 0.4 | 1.0 | 0.5 | ~45% |
+
+\*From the economy simulation over 15 minutes. Weights live in `Resources/Content/Config/AutoBuyConfig.asset`.
 
 ## 4. Formulas
 
@@ -107,32 +141,42 @@ Knobs: `Resources/Content/Config/WaveConfig.asset`, `EconomyConfig.asset`.
 
 | Quantity | Formula | Baseline knobs |
 |----------|---------|----------------|
-| Enemies in wave *w* | `min(base + perWave·(w−1), max)` (+1 boss on boss waves) | 8, +2, max 80 |
-| Spawn interval | `max(min, base · mult^(w−1))` | 1.1s, ×0.96, min 0.3s |
-| Enemy health | `baseHP · 1.15^(w−1)` | `healthGrowthPerWave` |
+| Enemies in wave *w* | `min(base + perWave·(w−1), max)` (+1 boss on boss waves) | 6, +2, max 80 |
+| Spawn interval | `max(min, base · mult^(w−1))` | 1.4s, ×0.96, min 0.35s |
+| Enemy health | `baseHP · 1.17^(w−1)` | `healthGrowthPerWave` |
 | Enemy damage | `baseDmg · 1.07^(w−1)` | `damageGrowthPerWave` |
-| Enemy reward | `baseReward · 1.13^(w−1)` | `rewardGrowthPerWave` |
-| Enemy speed | `baseSpeed · min(1 + 0.015·(w−1), 1.6)` | `speedGrowthPerWave`, `maxSpeedMultiplier` |
-| Upgrade cost (next level) | `ceil(baseCost · growth^level)` | per track |
+| Enemy reward | `baseReward · 1.135^(w−1)` | `rewardGrowthPerWave` |
+| Kill reward paid | `enemy reward × 0.9 × ship credit multiplier` | `EconomyConfig.killRewardMultiplier`, *Salvage Drones* |
+| Enemy speed | `baseSpeed · min(0.7 + 0.02·(w−1), 1.6)` | `startingSpeedMultiplier`, `speedGrowthPerWave`, `maxSpeedMultiplier` |
+| Weapon unlock price | `ceil(60 · 1.5^(weaponsOwned−1))`: 60, 90, 135, 203… | `weaponUnlockCost`, `weaponUnlockCostGrowth` |
+| Upgrade cost (next level) | `ceil(baseCost · growth^level)`, from the track's shared cost curve if it has one | `upgradeCostCurves` / per track |
 | Stat value | `(base + Σflat) · (1 + Σpercent)` | per track |
 | Weapon damage / fire rate | weapon stat × ship global multiplier | *Overcharge*, *Fire Control* |
-| Kill reward paid | `enemy reward × ship credit multiplier` | *Salvage Drones* |
 | Offline earnings | `floor(min(away, 8h) · credits/sec · 0.25)` | `EconomyConfig` |
 
-**Why these shapes?** Enemy HP grows faster (1.15) than rewards (1.13), so income alone can't keep up and the
+**Why these shapes?** Enemy HP grows faster (1.17) than rewards (1.135), so income alone can't keep up and the
 player must keep upgrading. Upgrade costs grow geometrically while most upgrade effects grow linearly, which makes
 each extra level a bit less efficient (diminishing returns). That eventually creates the walls that make
 progression feel earned. These are the standard idle-game curves.
 
+**Why HP went up for the multi-weapon model:** owning 2–3 weapons early roughly doubles or triples early damage
+output compared with the old one-weapon start. Base enemy HP was raised 1.5× and HP growth from 1.15 to 1.17 to
+absorb that.
+
+**Second tuning pass (income vs. spending):** credits were piling up faster than they could be spent. Kill income
+dropped about 10% (`killRewardMultiplier` 0.9, reward growth 1.14 → 1.135), upgrade cost growth went up (weapon
+damage 1.2 → 1.25, fire rate 1.25 → 1.3, ship tracks +0.03), and weapon unlocks now escalate (60 × 1.5 per
+weapon owned) instead of a flat 15.
+
 ### Scaling at a glance
 
-| Wave | Enemies | Spawn interval | HP × | Dmg × | Reward × | Asteroid HP | Boss HP |
-|------|---------|----------------|------|-------|----------|-------------|---------|
-| 1 | 8 | 1.10s | 1.00 | 1.00 | 1.00 | 20 | n/a |
-| 5 | 16 | 0.93s | 1.75 | 1.31 | 1.63 | 35 | n/a |
-| 10 | 26 + boss | 0.76s | 3.52 | 1.84 | 3.00 | 70 | 2,111 |
-| 15 | 36 | 0.62s | 7.08 | 2.58 | 5.53 | 142 | n/a |
-| 20 | 46 + boss | 0.51s | 14.2 | 3.62 | 10.2 | 285 | 8,538 |
+| Wave | Enemies | Spawn interval | HP × | Dmg × | Reward × | Speed × | Asteroid HP | Boss HP |
+|------|---------|----------------|------|-------|----------|---------|-------------|---------|
+| 1 | 6 | 1.40s | 1.00 | 1.00 | 1.00 | 0.70 | 30 | n/a |
+| 5 | 14 | 1.19s | 1.87 | 1.31 | 1.66 | 0.78 | 56 | n/a |
+| 10 | 24 + boss | 0.97s | 4.11 | 1.84 | 3.13 | 0.88 | 123 | 3,698 |
+| 15 | 34 | 0.79s | 9.01 | 2.58 | 5.89 | 0.98 | 270 | n/a |
+| 20 | 44 + boss | 0.64s | 19.7 | 3.62 | 11.1 | 1.08 | 592 | 17,774 |
 
 ## 5. Baseline content & numbers
 
@@ -141,81 +185,105 @@ Hull 100 · Regen 1/s · Speed 3 · Collision radius 0.35 · 2s invulnerability 
 
 | Upgrade | Effect / level | Base cost | Growth | Max |
 |---------|----------------|-----------|--------|-----|
-| Reinforced Hull | Max hull +15% | 20 | 1.22 | n/a |
-| Nano Repair | Regen +0.5/s | 30 | 1.25 | n/a |
-| Thrusters | Move speed +5% | 40 | 1.30 | 20 |
-| Salvage Drones | Credits +10% | 75 | 1.35 | n/a |
-| Fire Control | All fire rate +4% | 100 | 1.40 | 25 |
-| Overcharge | All damage +5% | 150 | 1.45 | n/a |
+| Reinforced Hull | Max hull +15% | 20 | 1.25 | n/a |
+| Nano Repair | Regen +0.5/s | 30 | 1.28 | n/a |
+| Thrusters | Move speed +5% | 40 | 1.33 | 20 |
+| Salvage Drones | Credits +10% | 75 | 1.38 | n/a |
+| Fire Control | All fire rate +4% | 100 | 1.43 | 25 |
+| Overcharge | All damage +5% | 150 | 1.48 | n/a |
 
 ### Weapons
-| Weapon | Unlock | Cost | Dmg | Rate/s | Proj. | Spread | Speed | Range | Special |
-|--------|--------|------|-----|--------|-------|--------|-------|-------|---------|
-| Pulse Blaster | start | n/a | 10 | 2.0 | 1 | n/a | 14 | 7 | Leading shots |
-| Scatter Cannon | reach wave 5 | 300 | 6 | 0.9 | 5 | 40° | 11 | 5 | Short range shotgun |
-| Seeker Missiles | reach wave 10 | 1,500 | 30 | 0.5 | 2 | 30° | 7 | 9 | Homing, 1.2 splash |
+Every weapon can be the random starter. The others unlock for **60, then 90** (×1.5 per weapon owned). Base damage output is
+roughly matched (about 20 DPS each before accuracy and splash), so no starter is a bad roll.
 
-| Weapon upgrades | Effect / level | Base cost | Growth | Max |
-|-----------------|----------------|-----------|--------|-----|
-| Blaster: Bolt Damage / Capacitors / Phase Bolts | +20% dmg / +8% rate / +1 pierce | 10 / 25 / 500 | 1.2 / 1.28 / 4 | n/a / 30 / 3 |
-| Scatter: Heavy Shot / Auto Loader / Wide Choke | +20% dmg / +8% rate / +1 pellet | 60 / 120 / 400 | 1.22 / 1.3 / 2.2 | n/a / 30 / 6 |
-| Missiles: Warheads / Rapid Racks / Shaped Charge / Extra Tubes | +25% dmg / +8% rate / +10% blast / +1 missile | 400 / 600 / 800 / 3000 | 1.25 / 1.32 / 1.5 / 3 | n/a / 25 / 10 / 3 |
+| Weapon | Dmg | Rate/s | Proj. | Spread | Speed | Range | Base DPS | Style |
+|--------|-----|--------|-------|--------|-------|-------|----------|-------|
+| Pulse Blaster | 10 | 2.0 | 1 | n/a | 14 | 7 | 20 | Long range, leads targets, reliable |
+| Scatter Cannon | 5 | 0.9 | 5 | 40° | 11 | 5 | 22.5 (if all pellets hit) | Short range shotgun, great vs swarms |
+| Seeker Missiles | 20 | 0.5 | 2 | 30° | 7 | 9 | 20 + 1.2 splash | Homing, area damage, slow |
+
+### Weapon upgrade cost curves (shared by every weapon, `EconomyConfig`)
+| Curve | Used by | Base cost | Growth | Costs for levels 1–5 |
+|-------|---------|-----------|--------|----------------------|
+| `weapon_damage` | Damage tracks (+20%/level, all weapons) | 10 | 1.25 | 10, 13, 16, 20, 25 |
+| `weapon_fire_rate` | Fire-rate tracks (+8%/level, max 30) | 20 | 1.30 | 20, 26, 34, 44, 58 |
+| `weapon_utility` | Blast radius (+10%/level, max 10) | 60 | 1.45 | 60, 87, 127, 183, 266 |
+| `weapon_special` | "+1 count" tracks: pierce (max 3), pellets (max 4), missiles (max 3) | 250 | 3.00 | 250, 750, 2,250 |
+
+| Weapon | Tracks |
+|--------|--------|
+| Pulse Blaster | Bolt Damage, Capacitors (fire rate), Phase Bolts (+1 pierce) |
+| Scatter Cannon | Heavy Shot, Auto Loader (fire rate), Wide Choke (+1 pellet) |
+| Seeker Missiles | Warheads, Rapid Racks (fire rate), Shaped Charge (blast radius), Extra Tubes (+1 missile) |
 
 ### Enemies (wave-1 values)
 | Enemy | Behaviour | First wave | Spawn weight | HP | Contact dmg | Speed | Reward | Notes |
 |-------|-----------|-----------|--------------|----|-------------|-------|--------|-------|
-| Asteroid | Drift | 1 | 10 | 20 | 10 | 1.1 | 3 | Splits into 2 shards |
-| Asteroid Shard | Drift | (split only) | n/a | 7 | 5 | 1.8 | 1 | n/a |
-| Drone | Chase | 3 | 6 | 12 | 8 | 2.0 | 4 | Rams the ship |
-| Gunship | Shooter | 6 | 3 | 45 | 12 | 1.4 | 12 | 6 dmg shot every 2.2s at 4.5 range |
-| Mothership | Shooter (boss) | every 10th | n/a | 600 | 25 | 0.8 | 250 | 5-shot 60° volley every 1s |
+| Asteroid | Drift | 1 | 10 | 30 | 10 | 1.1 | 3 | Splits into 2 shards |
+| Asteroid Shard | Drift | (split only) | n/a | 10 | 5 | 1.8 | 1 | n/a |
+| Drone | Chase | 3 | 6 | 18 | 8 | 2.0 | 4 | Rams the ship |
+| Gunship | Shooter | 6 | 3 | 65 | 12 | 1.4 | 12 | 6 dmg shot every 2.2s at 4.5 range |
+| Mothership | Shooter (boss) | every 10th | n/a | 900 | 25 | 0.8 | 250 | 5-shot 60° volley every 1s |
+
+Speeds shown are base values. Wave 1 runs at 0.7× of them (see the scaling table).
 
 ### Milestones
 | Goal | Condition | Reward |
 |------|-----------|--------|
 | First Contact | 10 kills | 25 |
 | Holding the Line | reach wave 3 | 50 |
-| Scatter License | reach wave 5 | unlock Scatter Cannon |
+| Picking Up Speed | reach wave 5 | 150 |
 | Rock Breaker | 150 kills | 300 |
 | Deep Patrol | reach wave 8 | 500 |
-| Seeker License | reach wave 10 | unlock Seeker Missiles |
+| Mothership Sighted | reach wave 10 | 400 |
 | Mothership Down | reach wave 11 | 2,000 |
 | Scrap Baron | earn 10,000 total | 1,000 |
 | Ace Pilot | 1,000 kills | 5,000 |
 | Sector Veteran | reach wave 15 | 7,500 |
 
-## 6. Expected pacing (first ~5 minutes)
+## 6. Expected pacing (first ~5–10 minutes)
 
-Rough estimate assuming no deaths (average root-enemy value ≈ 5 credits early, ≈ 5.8 once gunships appear):
+These estimates come from a simple economy simulation: no deaths, with either a hands-on player who buys the best
+damage per credit or auto mode's rule. Treat them as a starting point for playtesting, not a promise.
 
-| Wave | Approx. credits from wave | Cumulative | What the player is doing |
-|------|---------------------------|------------|--------------------------|
-| 1 | ~40 | 40 | First Bolt Damage / Hull levels |
-| 3 | ~70 | ~165 | Drones appear and start ramming; hull/regen matter |
-| 5 | ~120 | ~380 | Scatter Cannon unlocks (300) |
-| 8 | ~300 | ~1,100 | Gunships shooting back; probably the first deaths and farming |
-| 10 | ~450 + 750 boss | ~2,700 | Mothership boss wall; Seeker Missiles unlock (1,500) |
+| Milestone | Hands-on player | Auto mode (Attack / Balanced / Defense) |
+|-----------|-----------------|------------------------------------------|
+| 2nd weapon (60) | wave ~4 | wave ~5–6 / ~6 / ~6 (earlier with a Scatter starter) |
+| 3rd weapon (90) | wave ~6–9 | wave ~8–9 / ~8–10 / ~9–10 |
+| Wave reached at 3 min | ~8 | ~7 / ~7 / ~5 |
+| Wave reached at 5 min | ~10 (first boss) | ~10 / ~9 / ~7 |
 
-A wave lasts about 15s early and about 25s at wave 9. The boss adds about 20s. That's about 4–5 minutes to reach
-wave 10 without deaths, longer with them, which matches the target for this pass. **Playtest questions to answer:**
-Is the first minute too slow? Is the wave-8/10 wall too hard or too soft? Does the ship die to things the player
-can't understand?
+Defense looks slow here because the simulation doesn't model dying. In real play, the extra hull and regen should
+mean fewer deaths and less farming. **Playtest questions:** Does the 60-credit 2nd weapon feel like a meaningful
+"save up" moment? Is the 3rd weapon landing around wave 7–8? Does credit income still outpace spending? Does any
+auto mode strategy feel clearly wrong?
 
 ## 7. Tuning guide
 
+All of these are asset fields: no code changes needed.
+
 | If playtesting shows... | Try adjusting |
 |-------------------------|---------------|
-| Early game too slow | Lower first-level costs (`baseCost`) or raise Asteroid `creditReward`. |
-| Players hit walls too early | Lower `healthGrowthPerWave` (1.15 → 1.13) or raise `rewardGrowthPerWave`. |
-| Upgrades feel pointless | Raise `valuePerLevel` on that track or lower its `costGrowth`. |
-| Too easy to max everything | Raise `costGrowth` (1.2 → 1.25+). |
+| Credits still pile up / run dry | `EconomyConfig.killRewardMultiplier` (0.9 → 0.8 / 1.0): one dial for all kill income. |
+| Opening still too hectic | `WaveConfig`: lower `baseEnemyCount`, raise `baseSpawnInterval`, lower `startingSpeedMultiplier` (0.7 → 0.6). |
+| Opening too slow / boring | Reverse the above, or raise `killRewardMultiplier`. |
+| Game speeds up too fast later | Lower `speedGrowthPerWave` or `maxSpeedMultiplier`. Raise `spawnIntervalMultiplierPerWave` toward 1. |
+| 2nd weapon comes too early / late | `EconomyConfig.weaponUnlockCost` (60). |
+| 3rd+ weapons come too early / late | `EconomyConfig.weaponUnlockCostGrowth` (1.5). |
+| Upgrades come too fast / slow | Cost curve `costGrowth` in `EconomyConfig` (weapons) or per ship track. |
+| Nobody bothers upgrading deep | Lower `weapon_damage` / `weapon_fire_rate` curve growth, or raise `valuePerLevel` on those tracks. |
+| One weapon is clearly best | Adjust that weapon's base stats (keep base DPS roughly equal across weapons). |
+| Auto mode neglects / overspends on something | `AutoBuyConfig` profile weights (higher = bought sooner). Weight 0 = never auto-buy that category. |
+| Players hit walls too early | Lower `healthGrowthPerWave` (1.17 → 1.15) or raise `rewardGrowthPerWave`. |
 | Ship dies too often / unfairly | Raise base hull/regen, lower `damageGrowthPerWave`, or tune `ShipAutopilot` weights. |
 | Waves feel too long | Lower `enemiesPerWave` or `baseSpawnInterval`. |
 | Screen too cluttered | Lower `maxConcurrentEnemies`. |
 | Offline earnings too generous / stingy | `offlineEfficiency`, `maxOfflineHours`. |
 
 Workflow: edit numbers in the Inspector (while **not** in Play mode), press Play, and use the DEV tab speed-up
-(x4/x8) and credit grants to reach the part of the game you're tuning. Then update the tables above.
+(x4/x8) and credit grants to reach the part of the game you're tuning. Then update the tables above. Use DEV →
+*Reset ALL progress* to try a fresh run (and a new random starting weapon). Auto mode at x8 speed is a quick way to
+see how a full strategy plays out.
 
 ## 8. What is the "end game" of an idle game?
 
@@ -238,12 +306,15 @@ Ordered by suggested priority after the first playtest:
 
 1. **Balance pass** based on playtest feedback (this doc's tables).
 2. **Buy multipliers** (x1 / x10 / Max) on upgrade buttons, a standard idle quality-of-life feature.
-3. **Prestige system** (Star Cores + permanent upgrade tree). Needs a second currency in `SaveData` and
+3. **New weapon every 10 waves (after wave 10):** add a `WeaponDefinition` with *Available From Start* off, plus a
+   "Reach wave 10/20/30…" milestone whose *Unlock Weapon Id* points at it. No code is needed. The unlock price
+   keeps escalating (60 × 1.5^(owned−1)), so check that `weaponUnlockCostGrowth` still fits once there are 5+ weapons.
+4. **Prestige system** (Star Cores + permanent upgrade tree). Needs a second currency in `SaveData` and
    `CurrencyWallet`.
-4. **Sectors:** every 25 waves change background color, spawn table and boss.
-5. **Audio:** shot, explosion, purchase and milestone sounds plus music, with a settings toggle.
-6. **Juice:** floating "+credits" numbers, screen shake on big hits, boss health bar.
-7. **More enemy AIs:** splitter swarms, shielded tanks, kamikaze chargers. Add a behaviour plus enum value.
-8. **More weapons:** laser beam (continuous), orbiting drones, chain lightning.
-9. **Daily rewards / ad-based x2 offline earnings** (if monetization is ever wanted).
-10. **Cloud save** (Google Play Games) once the save format stabilizes.
+5. **Sectors:** every 25 waves change background color, spawn table and boss.
+6. **Audio:** shot, explosion, purchase and milestone sounds plus music, with a settings toggle.
+7. **Juice:** floating "+credits" numbers, screen shake on big hits, boss health bar.
+8. **More enemy AIs:** splitter swarms, shielded tanks, kamikaze chargers. Add a behaviour plus enum value.
+9. **More weapon types:** laser beam (continuous), orbiting drones, chain lightning.
+10. **Daily rewards / ad-based x2 offline earnings** (if monetization is ever wanted).
+11. **Cloud save** (Google Play Games) once the save format stabilizes.

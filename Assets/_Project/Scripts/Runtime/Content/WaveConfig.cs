@@ -28,8 +28,10 @@ namespace AstroIdle.Content
         [SerializeField] private float healthGrowthPerWave = 1.15f;
         [SerializeField] private float damageGrowthPerWave = 1.07f;
         [SerializeField] private float rewardGrowthPerWave = 1.13f;
-        [Tooltip("Linear: speed * (1 + value * (wave-1)), capped by maxSpeedMultiplier.")]
-        [SerializeField] private float speedGrowthPerWave = 0.015f;
+        [Tooltip("Enemy speed multiplier on wave 1 (< 1 = a calmer opening).")]
+        [SerializeField] private float startingSpeedMultiplier = 0.8f;
+        [Tooltip("Linear: speed * (startingSpeedMultiplier + value * (wave-1)), capped by maxSpeedMultiplier.")]
+        [SerializeField] private float speedGrowthPerWave = 0.02f;
         [SerializeField] private float maxSpeedMultiplier = 1.6f;
 
         [Header("Bosses")]
@@ -55,6 +57,7 @@ namespace AstroIdle.Content
         public float HealthGrowthPerWave => healthGrowthPerWave;
         public float DamageGrowthPerWave => damageGrowthPerWave;
         public float RewardGrowthPerWave => rewardGrowthPerWave;
+        public float StartingSpeedMultiplier => startingSpeedMultiplier;
         public float SpeedGrowthPerWave => speedGrowthPerWave;
         public float MaxSpeedMultiplier => maxSpeedMultiplier;
         public int BossEveryNWaves => bossEveryNWaves;
